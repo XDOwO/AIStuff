@@ -51,8 +51,8 @@ sqrt_alphas_cumprod = torch.sqrt(alphas_cumprod)
 sqrt_one_minus_alphas_cumprod = torch.sqrt(1. - alphas_cumprod)
 posterior_variance = betas * (1. - alphas_cumprod_prev) / (1 - alphas_cumprod)
 
-IMG_SIZE = 64
-BATCH_SIZE = 64
+IMG_SIZE = 256
+BATCH_SIZE = 16
 
 def dataload():
     data_transforms=[
@@ -63,9 +63,12 @@ def dataload():
     ]
     data_transform= transforms.Compose(data_transforms)
 
-    dataset = datasets.CIFAR10(root="./data",download=False,transform=data_transform)
-    
+    train = datasets.Flowers102(root="./data",download=False,split="train",transform=data_transform)
+    test = datasets.Flowers102(root="./data",download=False,split="test",transform=data_transform)
+    val = datasets.Flowers102(root="./data",download=False,split="val",transform=data_transform)
 
+    dataset=torch.utils.data.ConcatDataset([train,test,val])
+    print(len(dataset))
     train, test = torch.utils.data.random_split(dataset, [int(len(dataset)*0.8), len(dataset)-int(len(dataset)*0.8)])
     return torch.utils.data.ConcatDataset([train,test])
 
